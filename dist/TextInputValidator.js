@@ -42,12 +42,12 @@
           onValidityChange(error)
         }
          element: the input element
-         input: RegExp or function. Rule for checking on input.
+         input: RegExp or function. Optional. Rule for checking on input.
           It can return immediately or return a promise that resolves with value:
             true: valid
             false: invalid
             String: invalid, and set error.message
-         blur: Rule for checking on blur. same argument as input. Will also check the standard HTML5 validating attributes (such as "required" and "pattern") via HTMLInputElement.checkValidity()
+         blur: Rule for checking on blur. Optional. Similar to input. Will also check the standard HTML5 validating attributes (such as "required" and "pattern") via HTMLInputElement.checkValidity()
          onValidityChange(error): callback function.
           arguments:
             error: null for valid. Error object for invalid
@@ -137,8 +137,8 @@
       }
     };
 
-    _class.prototype.setValidity = function setValidity(e) {
-      e = error(e);
+    _class.prototype.setValidity = function setValidity(validity) {
+      var e = error(validity);
 
       if (notEqual(this.error, e)) {
         this.error = e;
