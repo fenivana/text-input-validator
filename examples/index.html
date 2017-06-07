@@ -27,6 +27,11 @@ function isRegistered(email) {
 const validator = new TextInputValidator({
   element: document.getElementById('foo'),
 
+  input: /(?!.*[-_.+@]{2,})(?!^[-_.+@])^[-_.+a-z0-9]+(@([-.a-z0-9]+)?)?$/i,
+
+  blur: function(email) {
+    return /(?!.*[-_.+@]{2,})(?!^[-_.+@])^[-_.+a-z0-9]+@[-.a-z0-9]+\.[a-z]+$/i.test(email) && isRegistered(email).then(reged => !reged || 'this email has been taken')
+  },
 
   onValidityChange(e) {
     document.getElementById('error-foo').textContent = e ? e.message || 'invalid' : ''
