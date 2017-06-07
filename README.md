@@ -61,26 +61,33 @@ function forceSetError() {
 ### new TextInputValidate({ element, input, blur, onValidityChange })
 
 Arguments:
+
+```
   opts = {
     element: DOM Element,
     input: RegExp | function(value),
     blur: RegExp | function(value),
     onValidityChange(error)
   }
+```
 
-  element: the input element
+element: the input element
 
-  input: RegExp or function. Optional. Rule for checking on input.
-    It can return immediately or return a promise that resolves with value:
-      true: valid
-      false: invalid
-      String: invalid, and set error.message
+input: RegExp or function. Optional. Rule for checking on input. It can return immediately or return a promise that resolves with value:
 
-  blur: Rule for checking on blur. Optional. Similar to input. Will also check the standard HTML5 validating attributes (such as "required" and "pattern") via HTMLInputElement.checkValidity()
+```
+true: valid
+false: invalid
+String: invalid, and set error.message
+```
 
-  onValidityChange(error): callback function.
-    arguments:
-      error: null for valid. Error object for invalid
+blur: Rule for checking on blur. Optional. Similar to input. Will also check the standard HTML5 validating attributes (such as "required" and "pattern") via HTMLInputElement.checkValidity()
+
+onValidityChange(error): callback function. called when validity changes.
+
+arguments:
+
+error: null for valid. Error object for invalid
 
 
 ### textInputValidate.check(force = true)
@@ -88,7 +95,8 @@ Arguments:
 Validate manually.
 
 Arguments:
-  force: force call onValidityChange callback.
+
+force: force call onValidityChange callback.
 
 Returns promise. Resolve to null for valid or Error object for invalid.
 
@@ -103,10 +111,13 @@ Set new rules for input and blur
 Set validity of the input control.
 
 Arguments:
-  validity:
-    true: valid
-    false: invalid
-    String: invalid, and set error.message
+
+validity:
+```
+true: valid
+false: invalid
+String: invalid, and set error.message
+```
 
 If validity is not equal to current state(validation state not same, or error message not same), onValidityChange callback will be called.
 
