@@ -88,7 +88,7 @@ Returns promise.
 Set new rules for input and blur
 
 
-### textInputValidate.setValidity(validity)
+### textInputValidate.setValidity(valid)
 
 Set validity of the input control.
 
