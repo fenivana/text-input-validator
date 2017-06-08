@@ -1,7 +1,7 @@
 {
   "name": "text-input-validator",
-  "version": "0.1.0-dev.1",
-  "description": "Text input control validator",
+  "version": "0.1.0",
+  "description": "Progressive text input control validator",
   "main": "dist/TextInputValidator.js",
   "scripts": {
     "build": "babel src -d dist"

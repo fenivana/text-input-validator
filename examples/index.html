@@ -33,8 +33,8 @@ const validator = new TextInputValidator({
     return /(?!.*[-_.+@]{2,})(?!^[-_.+@])^[-_.+a-z0-9]+@[-.a-z0-9]+\.[a-z]+$/i.test(email) && isRegistered(email).then(reged => !reged || 'this email has been taken')
   },
 
-  onValidityChange(e) {
-    document.getElementById('error-foo').textContent = e ? e.message || 'invalid' : ''
+  onValidityChange(valid) {
+    document.getElementById('error-foo').textContent = valid === true || valid === null ? '' : valid || 'invalid'
   }
 })
 

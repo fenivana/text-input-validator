@@ -1,5 +1,5 @@
 # text-input-validator
-Text input validator
+Progressive text input control validator
 
 ## Usage
 See file `examples/index.html`:
@@ -39,18 +39,14 @@ const validator = new TextInputValidator({
     return /(?!.*[-_.+@]{2,})(?!^[-_.+@])^[-_.+a-z0-9]+@[-.a-z0-9]+\.[a-z]+$/i.test(email) && isRegistered(email).then(reged => !reged || 'this email has been taken')
   },
 
-  onValidityChange(e) {
-    document.getElementById('error-foo').textContent = e ? e.message || 'invalid' : ''
+  onValidityChange(valid) {
+    document.getElementById('error-foo').textContent = valid === true || valid === null ? '' : valid || 'invalid'
   }
 })
 
 function forceSetError() {
   validator.setValidity('force error')
 }
-</script>
-</body>
-</html>
-
 </script>
 </body>
 </html>
@@ -67,14 +63,15 @@ function forceSetError() {
 ```
 true: valid
 false: invalid
-String: invalid, and set error.message
+null | undefined: initial state
+other types: your custom state, e.g. invalid message, password strength, etc.
 ```
 
 `blur`: Rule for checking on blur. Optional. Similar to input. Will also check the standard HTML5 validating attributes (such as "required" and "pattern") via HTMLInputElement.checkValidity()
 
-`onValidityChange(error)`: callback function. called when validity changes.
+`onValidityChange(valid)`: callback function. called when validity changes.
 
-`error`: `null` for valid. `Error` object for invalid
+`valid`: the result given by input and blur.
 
 
 ### textInputValidate.check(force = true)
@@ -83,7 +80,7 @@ Validate manually.
 
 `force`: force to call onValidityChange callback.
 
-Returns promise. Resolve to null for valid or Error object for invalid.
+Returns promise.
 
 
 ### textInputValidate.setRules({ input, blur })
@@ -95,15 +92,9 @@ Set new rules for input and blur
 
 Set validity of the input control.
 
-`validity`:
+`valid`: same as input and blur option of constructor.
 
-```
-true: valid
-false: invalid
-String: invalid, and set error.message
-```
-
-If validity is not equal to current state(validation state not same, or error message not same), onValidityChange callback will be called.
+If validity is not equal to current state, onValidityChange callback will be called.
 
 
 ### textInputValidate.on()

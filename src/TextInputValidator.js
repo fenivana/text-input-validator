@@ -1,14 +1,3 @@
-function error(e) {
-  // true: valid, false: invalid
-  if (e.constructor === Boolean) return e ? null : new Error()
-  // e is error message
-  else return new Error(e)
-}
-
-function notEqual(e1, e2) {
-  return (e1 && e1.message) !== (e2 && e2.message)
-}
-
 export default class {
   /*
     Arguments:
@@ -16,7 +5,7 @@ export default class {
         element: DOM Element,
         input: RegExp | function(value),
         blur: RegExp | function(value),
-        onValidityChange(error)
+        onValidityChange(valid)
       }
 
       element: the input element
@@ -25,36 +14,37 @@ export default class {
         It can return immediately or return a promise that resolves with value:
           true: valid
           false: invalid
-          String: invalid, and set error.message
+          null | undefined: initial state
+          other types: your custom state, e.g. invalid message, password strength, etc.
 
       blur: Rule for checking on blur. Optional. Similar to input. Will also check the standard HTML5 validating attributes (such as "required" and "pattern") via HTMLInputElement.checkValidity()
 
-      onValidityChange(error): callback function.
+      onValidityChange(valid): callback function.
         arguments:
-          error: null for valid. Error object for invalid
+          valid: the result given by input and blur
   */
   constructor(opts) {
     Object.assign(this, opts)
-    this.error = null
+    this.valid = null
     this._promise = null
     this._oldValue = null
 
     let composing
 
     this._oninput = () => {
-      if (composing || this.element.value === this._oldValue) return
+      if (!this.input || composing || this.element.value === this._oldValue) return
 
       this._oldValue = null
 
-      Promise.resolve(!this.input || (this.input.constructor === Function ? this.input(this.element.value) : this.input.test(this.element.value))).then(e => {
-        e = error(e)
-
-        if (notEqual(this.error, e)) {
-          this.error = e
-          this.onValidityChange(e)
+      Promise.resolve(
+        this.input.constructor === Function ? this.input(this.element.value) : this.input.test(this.element.value)
+      ).then((valid = null) => {
+        if (this.valid !== valid) {
+          this.valid = valid
+          this.onValidityChange(valid)
         }
 
-        return e
+        return valid
       })
     }
 
@@ -74,24 +64,25 @@ export default class {
     Arguments:
       force: force to call onValidityChange callback.
 
-    Returns promise. Resolve to null for valid or Error object for invalid.
+    Returns promise.
   */
   check(force = true) {
     if (this.element.value === this._oldValue) {
-      if (force) this.onValidityChange(this.error)
+      if (force) this.onValidityChange(this.valid)
       return this._promise
     }
 
     this._oldValue = this.element.value
-    this._promise = Promise.resolve(this.element.checkValidity() && (!this.blur || (this.blur.constructor === Function ? this.blur(this.element.value) : this.blur.test(this.element.value)))).then(e => {
-      e = error(e)
-
-      if (force || notEqual(this.error, e)) {
-        this.error = e
-        this.onValidityChange(e)
+    this._promise = Promise.resolve(
+      this.element.checkValidity() &&
+      (!this.blur || (this.blur.constructor === Function ? this.blur(this.element.value) : this.blur.test(this.element.value)))
+    ).then((valid = null) => {
+      if (force || this.valid !== valid) {
+        this.valid = valid
+        this.onValidityChange(valid)
       }
 
-      return e
+      return valid
     })
     return this._promise
   }
@@ -118,20 +109,15 @@ export default class {
     Set validity of the input control.
 
     Arguments:
-      validity:
-        true: valid
-        false: invalid
-        String: invalid, and set error.message
+      valid: same as input and blur option of constructor
 
-    If validity is not equal to current state(validation state not same, or error message not same), onValidityChange callback will be called.
+    If valid is not equal to current state, onValidityChange callback will be called.
   */
-  setValidity(validity) {
-    const e = error(validity)
-
-    if (notEqual(this.error, e)) {
-      this.error = e
-      this._promise = Promise.resolve(e)
-      this.onValidityChange(e)
+  setValidity(valid = null) {
+    if (this.valid !== valid) {
+      this.valid = valid
+      this._promise = Promise.resolve(valid)
+      this.onValidityChange(valid)
     }
   }
 

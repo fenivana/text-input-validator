@@ -21,17 +21,6 @@
     }
   }
 
-  function error(e) {
-    // true: valid, false: invalid
-    if (e.constructor === Boolean) return e ? null : new Error();
-    // e is error message
-    else return new Error(e);
-  }
-
-  function notEqual(e1, e2) {
-    return (e1 && e1.message) !== (e2 && e2.message);
-  }
-
   var _class = function () {
     /*
       Arguments:
@@ -39,18 +28,19 @@
           element: DOM Element,
           input: RegExp | function(value),
           blur: RegExp | function(value),
-          onValidityChange(error)
+          onValidityChange(valid)
         }
          element: the input element
          input: RegExp or function. Optional. Rule for checking on input.
           It can return immediately or return a promise that resolves with value:
             true: valid
             false: invalid
-            String: invalid, and set error.message
+            null | undefined: initial state
+            other types: your custom state, e.g. invalid message, password strength, etc.
          blur: Rule for checking on blur. Optional. Similar to input. Will also check the standard HTML5 validating attributes (such as "required" and "pattern") via HTMLInputElement.checkValidity()
-         onValidityChange(error): callback function.
+         onValidityChange(valid): callback function.
           arguments:
-            error: null for valid. Error object for invalid
+            valid: the result given by input and blur
     */
     function _class(opts) {
       var _this = this;
@@ -58,26 +48,26 @@
       _classCallCheck(this, _class);
 
       Object.assign(this, opts);
-      this.error = null;
+      this.valid = null;
       this._promise = null;
       this._oldValue = null;
 
       var composing = void 0;
 
       this._oninput = function () {
-        if (composing || _this.element.value === _this._oldValue) return;
+        if (!_this.input || composing || _this.element.value === _this._oldValue) return;
 
         _this._oldValue = null;
 
-        Promise.resolve(!_this.input || (_this.input.constructor === Function ? _this.input(_this.element.value) : _this.input.test(_this.element.value))).then(function (e) {
-          e = error(e);
+        Promise.resolve(_this.input.constructor === Function ? _this.input(_this.element.value) : _this.input.test(_this.element.value)).then(function () {
+          var valid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
-          if (notEqual(_this.error, e)) {
-            _this.error = e;
-            _this.onValidityChange(e);
+          if (_this.valid !== valid) {
+            _this.valid = valid;
+            _this.onValidityChange(valid);
           }
 
-          return e;
+          return valid;
         });
       };
 
@@ -109,20 +99,20 @@
       var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
       if (this.element.value === this._oldValue) {
-        if (force) this.onValidityChange(this.error);
+        if (force) this.onValidityChange(this.valid);
         return this._promise;
       }
 
       this._oldValue = this.element.value;
-      this._promise = Promise.resolve(this.element.checkValidity() && (!this.blur || (this.blur.constructor === Function ? this.blur(this.element.value) : this.blur.test(this.element.value)))).then(function (e) {
-        e = error(e);
+      this._promise = Promise.resolve(this.element.checkValidity() && (!this.blur || (this.blur.constructor === Function ? this.blur(this.element.value) : this.blur.test(this.element.value)))).then(function () {
+        var valid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
-        if (force || notEqual(_this2.error, e)) {
-          _this2.error = e;
-          _this2.onValidityChange(e);
+        if (force || _this2.valid !== valid) {
+          _this2.valid = valid;
+          _this2.onValidityChange(valid);
         }
 
-        return e;
+        return valid;
       });
       return this._promise;
     };
@@ -137,13 +127,13 @@
       }
     };
 
-    _class.prototype.setValidity = function setValidity(validity) {
-      var e = error(validity);
+    _class.prototype.setValidity = function setValidity() {
+      var valid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
-      if (notEqual(this.error, e)) {
-        this.error = e;
-        this._promise = Promise.resolve(e);
-        this.onValidityChange(e);
+      if (this.valid !== valid) {
+        this.valid = valid;
+        this._promise = Promise.resolve(valid);
+        this.onValidityChange(valid);
       }
     };
 
