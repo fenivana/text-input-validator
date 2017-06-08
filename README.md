@@ -1,5 +1,9 @@
 # text-input-validator
-Progressive text input control validator
+Progressive text input control validator.
+
+Most validate-while-typing validators are annoying, they will flash red warning at you when you type first letter. Well of course, I havn't finished typing yet!
+
+This validator is not the same. It can use different checking rules on typing and finished.
 
 ## Usage
 See file `examples/index.html`:

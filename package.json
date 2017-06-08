@@ -1,6 +1,6 @@
 {
   "name": "text-input-validator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Progressive text input control validator",
   "main": "dist/TextInputValidator.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-plugin-add-module-exports": "0.2.1",
-    "babel-preset-env": "1.5.1",
+    "babel-preset-env": "1.5.2",
     "babel-preset-stage-2": "6.24.1",
     "eslint": "3.19.0",
     "eslint-config-enough": "0.2.6"

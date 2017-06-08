@@ -89,7 +89,7 @@
       Validate manually.
        Arguments:
         force: force to call onValidityChange callback.
-       Returns promise. Resolve to null for valid or Error object for invalid.
+       Returns promise.
     */
 
 
