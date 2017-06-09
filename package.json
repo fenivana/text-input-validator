@@ -2,9 +2,9 @@
   "name": "text-input-validator",
   "version": "0.1.1",
   "description": "Progressive text input control validator",
-  "main": "dist/TextInputValidator.js",
+  "main": "TextInputValidator.js",
   "scripts": {
-    "build": "babel src -d dist"
+    "build": "rollup -c rollup.config.TextInputValidator.js && rollup -c rollup.config.Core.js"
   },
   "repository": {
     "type": "git",
@@ -22,12 +22,14 @@
   },
   "homepage": "https://github.com/fenivana/text-input-validator#readme",
   "devDependencies": {
-    "babel-cli": "6.24.1",
-    "babel-plugin-add-module-exports": "0.2.1",
+    "babel-core": "6.25.0",
+    "babel-plugin-external-helpers": "6.22.0",
     "babel-preset-env": "1.5.2",
     "babel-preset-stage-2": "6.24.1",
     "eslint": "3.19.0",
-    "eslint-config-enough": "0.2.6"
+    "eslint-config-enough": "0.2.6",
+    "rollup": "0.42.0",
+    "rollup-plugin-babel": "2.7.1"
   },
   "babel": {
     "presets": [
@@ -35,13 +37,13 @@
         "env",
         {
           "loose": true,
-          "modules": "umd"
+          "modules": false
         }
       ],
       "stage-2"
     ],
     "plugins": [
-      "add-module-exports"
+      "external-helpers"
     ]
   },
   "eslintConfig": {
