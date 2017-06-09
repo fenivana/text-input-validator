@@ -78,13 +78,9 @@ other types: your custom state, e.g. invalid message, password strength, etc.
 `valid`: the result given by input and blur.
 
 
-### textInputValidate.check(force = true)
+### textInputValidate.check()
 
-Validate manually.
-
-`force`: force to call onValidityChange callback.
-
-Returns promise.
+Validate manually. Returns promise.
 
 
 ### textInputValidate.setRules({ input, blur })

@@ -21,6 +21,11 @@ var _class = function () {
           other types: your custom state, e.g. invalid message, password strength, etc.
        blur: Rule for checking on blur. Similar to input. If ignored, it will be set to the value of input option.
         If both input and blur haven't been set, the validity will always be true.
+         can't use change event because the validity will wrong if
+          1. typing a value that can pass the input checking rule but can't pass the change checking rule
+          2. blur. the validity state will be invalid
+          3. focus again, input any letter and delete, the validity state becomes valid
+          4. blur. the change event won't fire because the value hasn't been changed, but the validity state is wrong.
        onValidityChange(valid): callback function.
         arguments:
           valid: the result given by input and blur
