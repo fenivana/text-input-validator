@@ -20,20 +20,6 @@ See file `examples/index.html`:
 <p><button onclick="forceSetError()">force set error</button></p>
 
 <script>
-function isRegistered(email) {
-  // emulate a remote API call
-  return new Promise(resolve => {
-    setTimeout(() => {
-      const registeredEmail = [
-        'foo@example.com',
-        'bar@example.com'
-      ]
-
-      resolve(registeredEmail.includes(email))
-    }, 300)
-  })
-}
-
 const validator = new TextInputValidator({
   element: document.getElementById('foo'),
 
@@ -51,6 +37,21 @@ const validator = new TextInputValidator({
 function forceSetError() {
   validator.setValidity('force error')
 }
+
+function isRegistered(email) {
+  // emulate a remote API call
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const registeredEmail = [
+        'foo@example.com',
+        'bar@example.com'
+      ]
+
+      resolve(registeredEmail.includes(email))
+    }, 300)
+  })
+}
+
 </script>
 </body>
 </html>
