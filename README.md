@@ -12,7 +12,7 @@ See file `examples/index.html`:
 <html>
 <head>
 <meta charset="utf-8">
-<script src="../dist/TextInputValidator.js"></script>
+<script src="../TextInputValidator.js"></script>
 </head>
 
 <body>
@@ -78,13 +78,9 @@ other types: your custom state, e.g. invalid message, password strength, etc.
 `valid`: the result given by input and blur.
 
 
-### textInputValidate.check(force = true)
+### textInputValidate.check()
 
-Validate manually.
-
-`force`: force to call onValidityChange callback.
-
-Returns promise.
+Validate manually. Returns promise.
 
 
 ### textInputValidate.setRules({ input, blur })
@@ -99,6 +95,8 @@ Set validity of the input control.
 `valid`: same as input and blur option of constructor.
 
 If validity is not equal to current state, onValidityChange callback will be called.
+
+Returns a promise resolved with value `valid`
 
 
 ### textInputValidate.on()

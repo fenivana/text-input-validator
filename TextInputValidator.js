@@ -93,58 +93,70 @@ var _class$2 = function () {
     this._lastEvent = null;
 
     this.oninput = function (value) {
-      if (!_this.input) return;
-
-      // return cached result
-      if (_this._lastValue === value) return _this._promise;
-
-      _this._lastEvent = 'input';
-      _this._lastValue = value;
-
-      var promise = _this._promise = Promise.resolve(_this.input.constructor === Function ? _this.input(value) : _this.input.test(value)).then(function (valid) {
-        // deal with async racing problem
-        if (promise !== _this._promise) return _this._promise;
-
-        if (valid !== _this._valid) {
-          _this._valid = valid;
-          _this.onValidityChange(valid);
-        }
-
-        return valid;
-      });
-
-      return promise;
+      _this.checkOnInput(value);
     };
 
-    this.check = function (value) {
-      // if blur is not set, and input is set, use oninput() to check validity
-      if (!_this.blur && _this.input) return _this.oninput(value
-
-      // return cached result
-      );if (_this._lastEvent === 'blur' && _this._lastValue === value) return _this._promise;
-
-      _this._lastEvent = 'blur';
-      _this._lastValue = value;
-
-      var promise = _this._promise = Promise.resolve(
-      // always resolve true if blur is not set
-      !_this.blur || _this.blur.constructor === Function ? _this.blur(value) : _this.blur.test(value)).then(function (valid) {
-        // deal with async racing problem
-        if (promise !== _this._promise) {
-          return _this._lastEvent === 'blur' ? _this._promise : _this.check(_this._lastValue);
-        }
-
-        if (valid !== _this._valid) {
-          _this._valid = valid;
-          _this.onValidityChange(valid);
-        }
-
-        return valid;
-      });
-
-      return promise;
+    this.onblur = function (value) {
+      _this.check(value);
     };
   }
+
+  _class.prototype.checkOnInput = function checkOnInput(value) {
+    var _this2 = this;
+
+    if (!this.input) return;
+
+    // return cached result
+    if (this._lastValue === value) return this._promise;
+
+    this._lastEvent = 'input';
+    this._lastValue = value;
+
+    var promise = this._promise = Promise.resolve(this.input.constructor === Function ? this.input(value) : this.input.test(value)).then(function (valid) {
+      // deal with async racing problem
+      if (promise !== _this2._promise) return _this2._promise;
+
+      if (valid !== _this2._valid) {
+        _this2._valid = valid;
+        _this2.onValidityChange(valid);
+      }
+
+      return valid;
+    });
+
+    return promise;
+  };
+
+  _class.prototype.check = function check(value) {
+    var _this3 = this;
+
+    // if blur is not set, and input is set, use oninput() to check validity
+    if (!this.blur && this.input) return this.oninput(value
+
+    // return cached result
+    );if (this._lastEvent === 'blur' && this._lastValue === value) return this._promise;
+
+    this._lastEvent = 'blur';
+    this._lastValue = value;
+
+    var promise = this._promise = Promise.resolve(
+    // always resolve true if blur is not set
+    !this.blur || this.blur.constructor === Function ? this.blur(value) : this.blur.test(value)).then(function (valid) {
+      // deal with async racing problem
+      if (promise !== _this3._promise) {
+        return _this3._lastEvent === 'blur' ? _this3._promise : _this3.check(_this3._lastValue);
+      }
+
+      if (valid !== _this3._valid) {
+        _this3._valid = valid;
+        _this3.onValidityChange(valid);
+      }
+
+      return valid;
+    });
+
+    return promise;
+  };
 
   /*
     Set new rules for input and blur events
@@ -175,12 +187,13 @@ var _class$2 = function () {
 
 
   _class.prototype.setValidity = function setValidity(valid) {
-    if (this._valid === valid) return;
+    if (this._valid === valid) return this._promise;
 
     this._lastEvent = 'blur';
     this._valid = valid;
     this._promise = Promise.resolve(valid);
     this.onValidityChange(valid);
+    return this._promise;
   };
 
   return _class;
@@ -208,29 +221,28 @@ var _class = function (_Core) {
       return composing = false;
     };
 
-    _this.oninput = function () {
-      if (!composing) _Core.prototype.oninput.call(_this, _this.element.value);
+    _this._oninput = function () {
+      if (!composing) _Core.prototype.checkOnInput.call(_this, _this.element.value);
     };
 
-    _this.check = function () {
-      if (!_this.element.checkValidity()) {
-        _this.setValidity(false);
-        return Promise.resolve(false);
-      } else {
-        return _Core.prototype.check.call(_this, _this.element.value);
-      }
+    _this._onblur = function () {
+      return _this.check();
     };
 
     _this.on();
     return _this;
   }
 
+  _class.prototype.check = function check() {
+    if (this.element.checkValidity()) return _Core.prototype.check.call(this, this.element.value);else return this.setValidity(false);
+  };
+
   // Turn on validator
 
 
   _class.prototype.on = function on() {
-    this.element.addEventListener('input', this.oninput);
-    this.element.addEventListener('blur', this.onblur);
+    this.element.addEventListener('input', this._oninput);
+    this.element.addEventListener('blur', this._onblur);
     this.element.addEventListener('compositionstart', this._compositionstart);
     this.element.addEventListener('compositionend', this._compositionend);
   };
@@ -239,8 +251,8 @@ var _class = function (_Core) {
 
 
   _class.prototype.off = function off() {
-    this.element.removeEventListener('input', this.oninput);
-    this.element.removeEventListener('change', this.onblur);
+    this.element.removeEventListener('input', this._oninput);
+    this.element.removeEventListener('change', this._onblur);
     this.element.removeEventListener('compositionstart', this._compositionstart);
     this.element.removeEventListener('compositionend', this._compositionend);
   };

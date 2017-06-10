@@ -30,60 +30,68 @@ export default class {
     this._lastEvent = null
 
     this.oninput = value => {
-      if (!this.input) return
-
-      // return cached result
-      if (this._lastValue === value) return this._promise
-
-      this._lastEvent = 'input'
-      this._lastValue = value
-
-      const promise = this._promise = Promise.resolve(
-        this.input.constructor === Function ? this.input(value) : this.input.test(value)
-      ).then(valid => {
-        // deal with async racing problem
-        if (promise !== this._promise) return this._promise
-
-        if (valid !== this._valid) {
-          this._valid = valid
-          this.onValidityChange(valid)
-        }
-
-        return valid
-      })
-
-      return promise
+      this.checkOnInput(value)
     }
 
-    this.check = value => {
-      // if blur is not set, and input is set, use oninput() to check validity
-      if (!this.blur && this.input) return this.oninput(value)
-
-      // return cached result
-      if (this._lastEvent === 'blur' && this._lastValue === value) return this._promise
-
-      this._lastEvent = 'blur'
-      this._lastValue = value
-
-      const promise = this._promise = Promise.resolve(
-        // always resolve true if blur is not set
-        !this.blur || this.blur.constructor === Function ? this.blur(value) : this.blur.test(value)
-      ).then(valid => {
-        // deal with async racing problem
-        if (promise !== this._promise) {
-          return this._lastEvent === 'blur' ? this._promise : this.check(this._lastValue)
-        }
-
-        if (valid !== this._valid) {
-          this._valid = valid
-          this.onValidityChange(valid)
-        }
-
-        return valid
-      })
-
-      return promise
+    this.onblur = value => {
+      this.check(value)
     }
+  }
+
+  checkOnInput(value) {
+    if (!this.input) return
+
+    // return cached result
+    if (this._lastValue === value) return this._promise
+
+    this._lastEvent = 'input'
+    this._lastValue = value
+
+    const promise = this._promise = Promise.resolve(
+      this.input.constructor === Function ? this.input(value) : this.input.test(value)
+    ).then(valid => {
+      // deal with async racing problem
+      if (promise !== this._promise) return this._promise
+
+      if (valid !== this._valid) {
+        this._valid = valid
+        this.onValidityChange(valid)
+      }
+
+      return valid
+    })
+
+    return promise
+  }
+
+  check(value) {
+    // if blur is not set, and input is set, use oninput() to check validity
+    if (!this.blur && this.input) return this.oninput(value)
+
+    // return cached result
+    if (this._lastEvent === 'blur' && this._lastValue === value) return this._promise
+
+    this._lastEvent = 'blur'
+    this._lastValue = value
+
+    const promise = this._promise = Promise.resolve(
+      // always resolve true if blur is not set
+      !this.blur || this.blur.constructor === Function ? this.blur(value) : this.blur.test(value)
+    ).then(valid => {
+      // deal with async racing problem
+      if (promise !== this._promise) {
+        return this._lastEvent === 'blur' ? this._promise : this.check(this._lastValue)
+      }
+
+      if (valid !== this._valid) {
+        this._valid = valid
+        this.onValidityChange(valid)
+      }
+
+      return valid
+    })
+
+    return promise
   }
 
   /*
@@ -110,11 +118,12 @@ export default class {
     If valid is not equal to current state, onValidityChange callback will be called.
   */
   setValidity(valid) {
-    if (this._valid === valid) return
+    if (this._valid === valid) return this._promise
 
     this._lastEvent = 'blur'
     this._valid = valid
     this._promise = Promise.resolve(valid)
     this.onValidityChange(valid)
+    return this._promise
   }
 }
