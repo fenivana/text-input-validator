@@ -25,7 +25,7 @@ const validator = new TextInputValidator({
 
   input: /(?!.*[-_.+@]{2,})(?!^[-_.+@])^[-_.+a-z0-9]+(@([-.a-z0-9]+)?)?$/i,
 
-  blur: function(email) {
+  blur(email) {
     return /(?!.*[-_.+@]{2,})(?!^[-_.+@])^[-_.+a-z0-9]+@[-.a-z0-9]+\.[a-z]+$/i.test(email) && isRegistered(email).then(reged => !reged || 'this email has been taken')
   },
 
@@ -51,7 +51,6 @@ function isRegistered(email) {
     }, 300)
   })
 }
-
 </script>
 </body>
 </html>

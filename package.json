@@ -1,6 +1,6 @@
 {
   "name": "text-input-validator",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Progressive text input control validator",
   "main": "TextInputValidator.js",
   "scripts": {
